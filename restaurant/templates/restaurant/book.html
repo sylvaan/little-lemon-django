@@ -1,0 +1,161 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        <div class="booking-section">
+            <div class="booking-grid">
+                <!-- Reservation Form -->
+                <div class="booking-form-container">
+                    <h2>Reserve a Table</h2>
+                    <p>Select your date and time slot. Bookings are confirmed instantly!</p>
+                    
+                    <div class="booking-form">
+                        <form action="{% url 'book' %}" method="post" id="table-booking-form">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="error-list">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="form-group">
+                                <label for="id_first_name">Your Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <span style="color: var(--accent-orange); font-size: 13px;">{{ form.first_name.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_reservation_date">Reservation Date</label>
+                                {{ form.reservation_date }}
+                                {% if form.reservation_date.errors %}
+                                    <span style="color: var(--accent-orange); font-size: 13px;">{{ form.reservation_date.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_reservation_slot">Reservation Slot</label>
+                                {{ form.reservation_slot }}
+                                {% if form.reservation_slot.errors %}
+                                    <span style="color: var(--accent-orange); font-size: 13px;">{{ form.reservation_slot.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px;" id="btn-submit-booking">Confirm Reservation</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Dynamic Booking List -->
+                <div class="booking-list-container">
+                    <h3>Bookings For <span id="selected-date-title">{{ today }}</span></h3>
+                    <div class="bookings-list" id="bookings-display-list">
+                        <!-- Dynamic list populated by JavaScript -->
+                        <div class="no-bookings">Loading reservations...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateInput = document.getElementById("id_reservation_date");
+        const slotSelect = document.getElementById("id_reservation_slot");
+        const dateTitle = document.getElementById("selected-date-title");
+        const bookingsList = document.getElementById("bookings-display-list");
+        
+        const originalSlotTexts = {};
+        Array.from(slotSelect.options).forEach(opt => {
+            originalSlotTexts[opt.value] = opt.text;
+        });
+
+        if (!dateInput.value) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        function formatSlot(hourStr) {
+            const hour = parseInt(hourStr);
+            if (isNaN(hour)) return hourStr;
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            let displayHour = hour % 12;
+            displayHour = displayHour === 0 ? 12 : displayHour;
+            const displayMin = "00";
+            return `${String(displayHour).padStart(2, '0')}:${displayMin} ${ampm}`;
+        }
+
+        function updateBookings() {
+            const dateValue = dateInput.value;
+            if (!dateValue) return;
+            
+            dateTitle.innerText = dateValue;
+            bookingsList.innerHTML = '<div class="no-bookings">Loading reservations...</div>';
+            
+            Array.from(slotSelect.options).forEach(opt => {
+                opt.disabled = false;
+                opt.text = originalSlotTexts[opt.value];
+            });
+
+            // Adjust relative URL prefix to support namespace routing
+            fetch(`{% url 'bookings' %}?date=${dateValue}`)
+                .then(response => response.json())
+                .then(bookings => {
+                    bookingsList.innerHTML = '';
+                    
+                    if (bookings.length === 0) {
+                        bookingsList.innerHTML = '<div class="no-bookings">No reservations for this date yet. Be the first to book!</div>';
+                        return;
+                    }
+
+                    bookings.sort((a, b) => parseInt(a.reservation_slot) - parseInt(b.reservation_slot));
+
+                    bookings.forEach(booking => {
+                        const card = document.createElement('div');
+                        card.className = 'booking-card';
+                        card.innerHTML = `
+                            <div class="booking-card-info">
+                                <h4>${booking.first_name}</h4>
+                                <p>Table Reserved</p>
+                            </div>
+                            <span class="booking-slot-badge">${formatSlot(booking.reservation_slot)}</span>
+                        `;
+                        bookingsList.appendChild(card);
+
+                        const optionToDisable = slotSelect.querySelector(`option[value="${booking.reservation_slot}"]`);
+                        if (optionToDisable) {
+                            optionToDisable.disabled = true;
+                            optionToDisable.text = `${originalSlotTexts[booking.reservation_slot]} (Booked)`;
+                        }
+                    });
+
+                    if (slotSelect.selectedOptions[0] && slotSelect.selectedOptions[0].disabled) {
+                        const firstAvailable = Array.from(slotSelect.options).find(opt => !opt.disabled);
+                        if (firstAvailable) {
+                            slotSelect.value = firstAvailable.value;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching bookings:", error);
+                    bookingsList.innerHTML = '<div class="no-bookings" style="color: var(--accent-orange);">Failed to load bookings.</div>';
+                });
+        }
+
+        dateInput.addEventListener("change", updateBookings);
+        updateBookings();
+    });
+</script>
+{% endblock %}

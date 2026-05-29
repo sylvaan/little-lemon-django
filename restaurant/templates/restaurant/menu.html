@@ -1,0 +1,41 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        <h2 class="section-title" style="margin-bottom: 48px;">Our Delicious Menu</h2>
+        
+        <div class="specials-grid">
+            {% if menu_items %}
+                {% for item in menu_items %}
+                    <div class="card">
+                        <div class="card-img-wrapper">
+                            {% if item.image %}
+                                <img src="{{ item.image }}" alt="{{ item.name }}">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80" alt="Default Food Image">
+                            {% endif %}
+                        </div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h3 class="card-title">{{ item.name }}</h3>
+                                <span class="card-price">${{ item.price }}</span>
+                            </div>
+                            <p class="card-text">{{ item.description }}</p>
+                            <div class="card-footer">
+                                <a href="{% url 'menu_item' item.id %}" class="card-link" id="menu-item-link-{{ item.id }}">View Details &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border-radius: 16px; box-shadow: var(--shadow-subtle);">
+                    <p style="font-size: 18px; color: #555; margin-bottom: 24px;">The menu is currently empty. Please access the Django Admin panel to add some mouth-watering dishes!</p>
+                    <a href="/admin" class="btn btn-primary" id="btn-admin-panel">Go to Admin Panel</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

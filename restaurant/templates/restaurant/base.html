@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Lemon Restaurant</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/citrus.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="{% url 'home' %}" class="logo" id="nav-logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="55" r="35" fill="#F4CE14" />
+                        <path d="M50 20C40 20 30 25 25 35C20 45 22 58 30 65C38 72 50 72 58 68C66 64 70 54 70 45C70 30 60 20 50 20Z" fill="#F4CE14" />
+                        <path d="M48 5C48 5 52 18 50 22C48 26 44 28 44 28C44 28 47 22 49 18C51 14 48 5 48 5Z" fill="#495E57" />
+                        <path d="M52 4C52 4 58 16 55 20C52 24 47 25 47 25C47 25 51 20 53 16C55 12 52 4 52 4Z" fill="#495E57" />
+                        <circle cx="42" cy="50" r="3" fill="#495E57" />
+                        <circle cx="58" cy="48" r="3" fill="#495E57" />
+                        <circle cx="48" cy="62" r="3" fill="#495E57" />
+                        <circle cx="62" cy="60" r="3" fill="#495E57" />
+                        <circle cx="34" cy="58" r="3" fill="#495E57" />
+                    </svg>
+                    <span class="logo-text">LITTLE <span>LEMON</span></span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}" id="nav-home">Home</a></li>
+                    <li><a href="{% url 'about' %}" id="nav-about">About</a></li>
+                    <li><a href="{% url 'menu' %}" id="nav-menu">Menu</a></li>
+                    <li><a href="{% url 'book' %}" class="nav-cta" id="nav-book">Book Table</a></li>
+                    
+                    {% if user.is_authenticated %}
+                        <li class="user-menu">
+                            <span class="user-welcome">Hi, {{ user.username }}</span>
+                            <a href="{% url 'logout' %}" class="auth-btn" id="nav-logout">Logout</a>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="auth-btn" id="nav-login">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Little Lemon</h4>
+                    <p>We are a family owned Mediterranean restaurant, focused on traditional recipes served with a modern twist.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'menu' %}">Menu</a></li>
+                        <li><a href="{% url 'book' %}">Book Table</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <p>321 Lemon Way, Chicago, IL</p>
+                    <p>Phone: (312) 555-0199</p>
+                    <p>Email: info@littlelemon.com</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Opening Hours</h4>
+                    <p>Monday - Friday: 11:00 AM - 10:00 PM</p>
+                    <p>Saturday - Sunday: 10:00 AM - 11:00 PM</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Little Lemon Restaurant. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

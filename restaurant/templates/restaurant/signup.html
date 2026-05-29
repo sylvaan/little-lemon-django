@@ -1,0 +1,44 @@
+{% extends 'restaurant/base.html' %}
+{% block content %}
+<section class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Sign up to reserve a table at Little Lemon</p>
+        </div>
+        
+        <div class="auth-form">
+            <form method="post" id="signup-form">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <ul class="error-list">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% for field in form %}
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span style="color: var(--accent-orange); font-size: 13px;">{{ field.errors.0 }}</span>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <span style="display: block; font-size: 11px; color: #777; margin-top: 4px;">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btn-signup-submit">Sign Up</button>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}" id="link-to-login">Login</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

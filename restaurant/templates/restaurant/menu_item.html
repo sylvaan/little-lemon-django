@@ -1,0 +1,32 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        <!-- Back Link -->
+        <a href="{% url 'menu' %}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--primary-color); font-weight: 600; margin-bottom: 30px;" id="back-to-menu-link">
+            &larr; Back to Menu
+        </a>
+        
+        <div class="detail-grid">
+            <div>
+                {% if menu_item.image %}
+                    <img src="{{ menu_item.image }}" alt="{{ menu_item.name }}" class="detail-image">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80" alt="Default Food Image" class="detail-image">
+                {% endif %}
+            </div>
+            <div class="detail-info">
+                <h1>{{ menu_item.name }}</h1>
+                <div class="detail-price">${{ menu_item.price }}</div>
+                <p class="detail-desc">{{ menu_item.description }}</p>
+                
+                <div style="display: flex; gap: 16px;">
+                    <a href="{% url 'book' %}" class="btn btn-primary" id="btn-reserve-dish-table">Reserve Table to Try This</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
